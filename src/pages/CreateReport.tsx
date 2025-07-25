@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { mockReports } from '../data/mockData';
 import { 
   Save, 
   X, 
@@ -10,10 +11,16 @@ import {
   Calendar, 
   Users, 
   AlertTriangle,
-  Camera
+  Camera,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  Hash
 } from 'lucide-react';
 
 const reportSchema = z.object({
+  codeSequence: z.string().regex(/^\d{3}$/, 'Kode urut harus 3 digit angka'),
+  codeYear: z.string().regex(/^\d{4}$/, 'Tahun harus 4 digit angka'),
   title: z.string().min(1, 'Judul harus diisi'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
   category: z.enum(['perawatan', 'pembangunan', 'upgrading', 'perbaikan']),
@@ -39,6 +46,13 @@ export function CreateReport({ onSuccess }: CreateReportProps) {
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [codeValidation, setCodeValidation] = useState<{
+    isValid: boolean;
+    message: string;
+    isChecking: boolean;
+  }>({ isValid: true, message: '', isChecking: false });
+  const [usedCodes, setUsedCodes] = useState<string[]>([]);
+  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
 
   const {
     register,
@@ -50,21 +64,99 @@ export function CreateReport({ onSuccess }: CreateReportProps) {
   } = useForm<ReportFormData>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
+      codeSequence: '',
+      codeYear: new Date().getFullYear().toString(),
       riskLevel: 'medium',
       weatherCondition: 'sunny',
       safetyIncidents: 0
     }
   });
 
+  const watchedCodeSequence = watch('codeSequence');
+  const watchedCodeYear = watch('codeYear');
+  const fullReportCode = `${watchedCodeSequence}/PEP82600/${watchedCodeYear}-SO`;
+
+  // Get used codes from existing reports
+  React.useEffect(() => {
+    const codes = mockReports.map(report => {
+      const parts = report.code.split('/');
+      return parts[0]; // Extract sequence part (XXX)
+    });
+    setUsedCodes(codes);
+  }, []);
+
+  // Validate code uniqueness
+  React.useEffect(() => {
+    if (watchedCodeSequence && watchedCodeSequence.length === 3) {
+      setCodeValidation(prev => ({ ...prev, isChecking: true }));
+      
+      // Simulate API check delay
+      const timer = setTimeout(() => {
+        const isDuplicate = usedCodes.includes(watchedCodeSequence);
+        const duplicateReport = mockReports.find(report => 
+          report.code.startsWith(`${watchedCodeSequence}/PEP82600`)
+        );
+        
+        if (isDuplicate && duplicateReport) {
+          setCodeValidation({
+            isValid: false,
+            message: `Kode ${watchedCodeSequence} sudah digunakan untuk laporan: ${duplicateReport.title}`,
+            isChecking: false
+          });
+        } else {
+          setCodeValidation({
+            isValid: true,
+            message: 'Kode tersedia',
+            isChecking: false
+          });
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else if (watchedCodeSequence && watchedCodeSequence.length > 0) {
+      setCodeValidation({
+        isValid: false,
+        message: 'Kode urut harus 3 digit angka',
+        isChecking: false
+      });
+    } else {
+      setCodeValidation({
+        isValid: true,
+        message: '',
+        isChecking: false
+      });
+    }
+  }, [watchedCodeSequence, usedCodes]);
+
+  const generateAutoCode = () => {
+    setIsGeneratingCode(true);
+    
+    // Find the smallest available code
+    setTimeout(() => {
+      for (let i = 1; i <= 999; i++) {
+        const code = i.toString().padStart(3, '0');
+        if (!usedCodes.includes(code)) {
+          setValue('codeSequence', code);
+          setIsGeneratingCode(false);
+          return;
+        }
+      }
+      // If all codes are used (unlikely)
+      alert('Semua kode urut sudah terpakai');
+      setIsGeneratingCode(false);
+    }, 1000);
+  };
+
   const onSubmit = async (data: ReportFormData) => {
+    // Check code validation before submitting
+    if (!codeValidation.isValid) {
+      alert('Silakan perbaiki kode laporan sebelum menyimpan');
+      return;
+    }
+
     try {
-      // Generate report code
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-      const code = `${random}/PEP82600/${year}-SO`;
+      // Use the manually set code
+      const code = `${data.codeSequence}/PEP82600/${data.codeYear}-SO`;
 
       // In a real app, this would be an API call
       console.log('Creating report:', {
@@ -166,6 +258,122 @@ export function CreateReport({ onSuccess }: CreateReportProps) {
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
+                <Hash className="w-5 h-5" />
+                <span>Kode Laporan</span>
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Code Input Fields */}
+                <div className="grid grid-cols-3 gap-4 items-end">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Kode Urut (XXX)
+                    </label>
+                    <input
+                      {...register('codeSequence')}
+                      type="text"
+                      maxLength={3}
+                      placeholder="001"
+                      className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent ${
+                        codeValidation.isValid 
+                          ? 'border-gray-300 dark:border-gray-600' 
+                          : 'border-red-300 dark:border-red-600'
+                      }`}
+                    />
+                    {errors.codeSequence && (
+                      <p className="text-red-600 text-sm mt-1">{errors.codeSequence.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Tahun (YYYY)
+                    </label>
+                    <input
+                      {...register('codeYear')}
+                      type="text"
+                      maxLength={4}
+                      placeholder="2025"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                    {errors.codeYear && (
+                      <p className="text-red-600 text-sm mt-1">{errors.codeYear.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={generateAutoCode}
+                      disabled={isGeneratingCode}
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    >
+                      {isGeneratingCode ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4" />
+                      )}
+                      <span className="text-sm">
+                        {isGeneratingCode ? 'Generate...' : 'Auto Generate'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Code Preview */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Preview Kode Laporan:
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      {codeValidation.isChecking ? (
+                        <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />
+                      ) : codeValidation.isValid ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-500" />
+                      )}
+                    </div>
+                  </div>
+                  <div className={`text-lg font-mono font-bold ${
+                    codeValidation.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {fullReportCode || 'XXX/PEP82600/YYYY-SO'}
+                  </div>
+                  {codeValidation.message && (
+                    <p className={`text-sm mt-2 ${
+                      codeValidation.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {codeValidation.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Used Codes Reference */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                    Kode yang Sudah Digunakan:
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {usedCodes.slice(0, 10).map((code, index) => (
+                      <span key={index} className="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded font-mono">
+                        {code}
+                      </span>
+                    ))}
+                    {usedCodes.length > 10 && (
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded">
+                        +{usedCodes.length - 10} lainnya
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Project Info */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Informasi Dasar
@@ -490,11 +698,16 @@ export function CreateReport({ onSuccess }: CreateReportProps) {
               <div className="space-y-3">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !codeValidation.isValid || codeValidation.isChecking}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSubmitting ? 'Menyimpan...' : 'Simpan Laporan'}</span>
+                  <span>
+                    {isSubmitting ? 'Menyimpan...' : 
+                     !codeValidation.isValid ? 'Perbaiki Kode Laporan' :
+                     codeValidation.isChecking ? 'Validasi Kode...' :
+                     'Simpan Laporan'}
+                  </span>
                 </button>
 
                 <button
