@@ -14,10 +14,19 @@ interface SidebarProps {
   isOpen: boolean;
   currentPage: string;
   onNavigate: (page: string) => void;
+  onClose?: () => void;
 }
 
-export function Sidebar({ isOpen, currentPage, onNavigate }: SidebarProps) {
+export function Sidebar({ isOpen, currentPage, onNavigate, onClose }: SidebarProps) {
   const { user } = useAuth();
+
+  const handleNavigate = (page: string) => {
+    onNavigate(page);
+    // Close sidebar on mobile after navigation
+    if (window.innerWidth < 1024 && onClose) {
+      onClose();
+    }
+  };
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'penanggung_jawab', 'pekerja'] },
@@ -33,7 +42,9 @@ export function Sidebar({ isOpen, currentPage, onNavigate }: SidebarProps) {
 
   return (
     <div className={`fixed left-0 top-16 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40 ${
-      isOpen ? 'w-64' : 'w-16'
+      isOpen ? 'w-64' : 'w-16 lg:w-16'
+    } ${
+      isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
     }`}>
       <div className="p-4">
         <nav className="space-y-2">
@@ -44,7 +55,7 @@ export function Sidebar({ isOpen, currentPage, onNavigate }: SidebarProps) {
             return (
               <button
                 key={item.id}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => handleNavigate(item.id)}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   isActive
                     ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
@@ -53,7 +64,7 @@ export function Sidebar({ isOpen, currentPage, onNavigate }: SidebarProps) {
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {isOpen && (
-                  <span className="font-medium">{item.label}</span>
+                  <span className="font-medium whitespace-nowrap">{item.label}</span>
                 )}
               </button>
             );

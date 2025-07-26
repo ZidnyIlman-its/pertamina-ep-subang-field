@@ -5,6 +5,9 @@ import { Dashboard } from '../pages/Dashboard';
 import { WorkReports } from '../pages/WorkReports';
 import { CreateReport } from '../pages/CreateReport';
 import { EditReport } from '../pages/EditReport';
+import { ExportReports } from '../pages/ExportReports';
+import { WorkSchedule } from '../pages/WorkSchedule';
+import { LocationMap } from '../pages/LocationMap';
 import { UserManagement } from '../pages/UserManagement';
 import { Settings } from '../pages/Settings';
 import { Layout } from './Layout/Layout';
@@ -45,6 +48,12 @@ export function AppRouter() {
           reportId={selectedReportId!} 
           onSuccess={() => setCurrentPage('reports')} 
         />;
+      case 'export-reports':
+        return <ExportReports onBack={() => setCurrentPage('dashboard')} />;
+      case 'work-schedule':
+        return <WorkSchedule onBack={() => setCurrentPage('dashboard')} />;
+      case 'location-map':
+        return <LocationMap onBack={() => setCurrentPage('dashboard')} />;
       case 'users':
         return user.role === 'admin' ? <UserManagement /> : <Dashboard onNavigate={setCurrentPage} />;
       case 'settings':

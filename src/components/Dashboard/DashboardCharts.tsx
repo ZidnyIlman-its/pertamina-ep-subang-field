@@ -24,9 +24,9 @@ import {
 
 export function DashboardCharts() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Progress Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Progress Pekerjaan Mingguan
@@ -35,7 +35,7 @@ export function DashboardCharts() {
             Tracking progress berdasarkan kategori pekerjaan
           </p>
         </div>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={250}>
           <LineChart data={progressChartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-700" />
             <XAxis 
@@ -90,7 +90,7 @@ export function DashboardCharts() {
       </div>
 
       {/* Risk Distribution */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Distribusi Risiko HSSE
@@ -99,7 +99,7 @@ export function DashboardCharts() {
             Persentase proyek berdasarkan tingkat risiko
           </p>
         </div>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
               data={riskDistributionData}
@@ -128,7 +128,7 @@ export function DashboardCharts() {
       </div>
 
       {/* Weekly Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 lg:col-span-2">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:col-span-2">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Aktivitas Mingguan
@@ -137,7 +137,7 @@ export function DashboardCharts() {
             Laporan masuk vs laporan selesai per hari
           </p>
         </div>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={250}>
           <BarChart data={weeklyActivityData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-700" />
             <XAxis 

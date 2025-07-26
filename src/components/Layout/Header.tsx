@@ -19,7 +19,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
           <div className="flex items-center space-x-4">
             <button
               onClick={onToggleSidebar}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors lg:hidden"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </button>
@@ -40,7 +40,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Theme toggle */}
             <button
               onClick={toggle}
@@ -86,7 +86,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
               )}
               <button
                 onClick={logout}
-                className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hidden sm:block"
+                className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hidden md:block"
               >
                 Logout
               </button>
