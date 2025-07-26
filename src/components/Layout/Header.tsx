@@ -2,13 +2,14 @@ import React from 'react';
 import { Bell, Sun, Moon, User, Menu } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
 }
 
 export function Header({ onToggleSidebar }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const { isDark, toggle } = useTheme();
 
   return (
@@ -55,13 +56,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </button>
 
             {/* Notifications */}
-            <button 
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-            </button>
+            <NotificationDropdown />
 
             {/* User menu */}
             <div className="flex items-center space-x-3">
@@ -75,7 +70,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
               </div>
               {user?.avatar ? (
                 <img
-                  src={user.avatar}
+                  src={user.avatar_url || ''}
                   alt={user.name}
                   className="w-10 h-10 rounded-full object-cover"
                 />
@@ -85,7 +80,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
                 </div>
               )}
               <button
-                onClick={logout}
+                onClick={signOut}
                 className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hidden md:block"
               >
                 Logout

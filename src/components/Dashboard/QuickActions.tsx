@@ -71,8 +71,7 @@ export function QuickActions({ onNavigate }: QuickActionsProps) {
       title: 'Export Laporan',
       description: 'Download laporan dalam format PDF/Excel',
       onClick: () => {
-        // Implement export functionality
-        alert('Fitur export akan segera tersedia');
+        onNavigate?.('export-reports');
       },
       color: 'border-green-200 dark:border-green-800 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10',
       roles: ['admin', 'penanggung_jawab']
@@ -82,8 +81,7 @@ export function QuickActions({ onNavigate }: QuickActionsProps) {
       title: 'Peta Lokasi Kerja',
       description: 'Lihat sebaran lokasi pekerjaan',
       onClick: () => {
-        // Implement map view
-        alert('Fitur peta akan segera tersedia');
+        onNavigate?.('location-map');
       },
       color: 'border-purple-200 dark:border-purple-800 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10',
       roles: ['admin', 'penanggung_jawab', 'pekerja']
@@ -93,8 +91,7 @@ export function QuickActions({ onNavigate }: QuickActionsProps) {
       title: 'Jadwal Pekerjaan',
       description: 'Kelola timeline dan deadline',
       onClick: () => {
-        // Implement calendar view
-        alert('Fitur kalender akan segera tersedia');
+        onNavigate?.('work-schedule');
       },
       color: 'border-orange-200 dark:border-orange-800 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/10',
       roles: ['admin', 'penanggung_jawab']

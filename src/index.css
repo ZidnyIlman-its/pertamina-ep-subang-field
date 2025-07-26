@@ -7,12 +7,18 @@
   --tooltip-bg: #ffffff;
   --tooltip-border: #e5e7eb;
   --tooltip-text: #374151;
+  --toast-bg: #ffffff;
+  --toast-border: #e5e7eb;
+  --toast-text: #374151;
 }
 
 .dark {
   --tooltip-bg: #1f2937;
   --tooltip-border: #374151;
   --tooltip-text: #f9fafb;
+  --toast-bg: #1f2937;
+  --toast-border: #374151;
+  --toast-text: #f9fafb;
 }
 
 /* Ensure proper theme transitions */

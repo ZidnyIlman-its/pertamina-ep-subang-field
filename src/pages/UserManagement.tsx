@@ -14,6 +14,7 @@ import { mockUsers } from '../data/mockData';
 import { User } from '../types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { AddUserModal } from '../components/UserManagement/AddUserModal';
 
 export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -336,26 +337,10 @@ export function UserManagement() {
       )}
 
       {/* Add User Modal - Placeholder */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Tambah User Baru
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Fitur ini akan segera tersedia untuk menambah user baru ke sistem.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddUserModal 
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      />
     </div>
   );
 }
